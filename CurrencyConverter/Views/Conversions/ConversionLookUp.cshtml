@@ -1,0 +1,105 @@
+﻿@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "ConversionLookUp";
+}
+
+<h1>ConversionLookUp</h1>
+
+<div class="card" id="conversion-date-search-card">
+    <div class="container" id="event-filter-options">
+        <h4>Start Date:</h4>
+    </div>
+    <div class="container" id="event-filter-options">
+        @Html.Editor("Start Date", new { htmlAttributes = new { @id = "startdatepicker", @placeholder = "Search From...", @autocomplete = "off" } })
+    </div>
+    <div class="container" id="event-filter-options">
+        <h4>End Date:</h4>
+    </div>
+    <div class="container" id="event-filter-options">
+        @Html.Editor("End Date", new { htmlAttributes = new { @id = "enddatepicker", @placeholder = "Search To...", @autocomplete = "off" } })
+    </div>
+
+    <button class="ui-button" onclick="submitFilter()">
+        Search
+    </button>
+</div>
+
+<div class="card" id="conversion-search-card">
+
+</div>
+<style>
+    #conversion-date-search-card {
+        width: 90%;
+        height: 30%;
+    }
+
+    #conversion-search-card {
+        height: 70%;
+        width: 90%;
+    }
+</style>
+
+@section Scripts {
+
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $("#startdatepicker").datepicker({
+                dateFormat: "dd/mm/yy",
+                changeMonth: true,
+                changeYear: true,
+                //yearRange: "-0:+2",
+                showOn: "both",
+                buttonText: "Select",
+                showButtonPanel: true
+            });
+        })
+        $(function () {
+            $("#enddatepicker").datepicker({
+                dateFormat: "dd/mm/yy",
+                changeMonth: true,
+                changeYear: true,
+                //yearRange: "-0:+2",
+                showOn: "both",
+                buttonText: "Select",
+                showButtonPanel: true,
+            });
+        })
+    </script>
+    <script>
+        function submitFilter() {
+            var startDateObject = $('#startdatepicker').datepicker('getDate');
+            var startDate = $.datepicker.formatDate('yy/mm/dd', startDateObject);
+            var endDateObject = $('#enddatepicker').datepicker('getDate');
+            var endDate = $.datepicker.formatDate('yy/mm/dd', endDateObject);
+            console.warn(startDate);
+            console.warn(endDate);
+            $("#conversion-search-card").load("/Conversions/GetFilteredConversions?Search_Start_Date=" + startDate + "&Search_End_Date=" + endDate);
+        };
+
+        $('#startdatepicker').change(function (e) {
+            var startDateObject = $('#startdatepicker').datepicker('getDate');
+            submitFilter();
+            $("#enddatepicker").datepicker("option", "minDate", startDateObject);
+        });
+
+        $('#enddatepicker').change(function (e) {
+            var endDateObject = $('#enddatepicker').datepicker('getDate');
+            submitFilter();
+            $("#startdatepicker").datepicker("option", "maxDate", endDateObject);
+
+        });
+
+    </script>
+    <script>
+        document.addEventListener('readystatechange', () => {
+            if (document.readyState == 'complete') loadLogs();
+        });
+
+        function loadLogs() {
+            $("#conversion-search-card").load("/Conversions/GetFilteredConversions?Search_Start_Date=&Search_End_Date=");
+        };
+    </script>
+}
